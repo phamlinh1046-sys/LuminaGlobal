@@ -90,6 +90,16 @@ function lumina_db(): SQLite3 {
         $db->exec("ALTER TABLE users ADD COLUMN admin_note TEXT DEFAULT ''");
     } catch (Exception $e) { /* column already exists */ }
 
+    // Migration: add phone column to users
+    try {
+        $db->exec("ALTER TABLE users ADD COLUMN phone TEXT DEFAULT ''");
+    } catch (Exception $e) { /* column already exists */ }
+
+    // Migration: add phone column to access_requests
+    try {
+        $db->exec("ALTER TABLE access_requests ADD COLUMN phone TEXT DEFAULT ''");
+    } catch (Exception $e) { /* column already exists */ }
+
     // Access requests from main domain (invite-only leads)
     $db->exec("CREATE TABLE IF NOT EXISTS access_requests (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -55,8 +55,9 @@ function auth_logout(): void {
     setcookie(SESSION_COOKIE, '', time() - 3600, '/');
 }
 
-function register_user(int $tenant_id, string $email, string $password, string $name): array {
+function register_user(int $tenant_id, string $email, string $password, string $name, string $phone = ''): array {
     $email = strtolower(trim($email));
+    $phone = trim($phone);
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) return ['error' => 'Email không hợp lệ'];
     if (strlen($password) < 6) return ['error' => 'Mật khẩu tối thiểu 6 ký tự'];
     if (strlen(trim($name)) < 2) return ['error' => 'Vui lòng nhập họ tên'];
@@ -66,10 +67,10 @@ function register_user(int $tenant_id, string $email, string $password, string $
 
     $hash = password_hash($password, PASSWORD_BCRYPT);
     $id = db_exec(
-        'INSERT INTO users(tenant_id,email,password_hash,name,role,status) VALUES(:t,:e,:h,:n,"member","pending")',
-        [':t' => $tenant_id, ':e' => $email, ':h' => $hash, ':n' => trim($name)]
+        'INSERT INTO users(tenant_id,email,password_hash,name,phone,role,status) VALUES(:t,:e,:h,:n,:p,"member","pending")',
+        [':t' => $tenant_id, ':e' => $email, ':h' => $hash, ':n' => trim($name), ':p' => $phone]
     );
-    return ['id' => $id, 'email' => $email, 'name' => trim($name)];
+    return ['id' => $id, 'email' => $email, 'name' => trim($name), 'phone' => $phone];
 }
 
 function login_user(int $tenant_id, string $email, string $password): array {
@@ -127,6 +128,7 @@ function notify_admin_new_registration(array $user, array $tenant): void {
       <table style='width:100%;border-collapse:collapse'>
         <tr><td style='padding:10px 0;color:rgba(255,255,255,.5);width:120px'>Tên</td><td style='color:#fff;font-weight:700'>{$user['name']}</td></tr>
         <tr><td style='padding:10px 0;color:rgba(255,255,255,.5)'>Email</td><td style='color:#fff'>{$user['email']}</td></tr>
+        <tr><td style='padding:10px 0;color:rgba(255,255,255,.5)'>SĐT</td><td style='color:#fff'>" . ($user['phone'] ?: '—') . "</td></tr>
         <tr><td style='padding:10px 0;color:rgba(255,255,255,.5)'>Tenant</td><td style='color:#00C9B1'>{$tenant['name']} ({$tenant['slug']})</td></tr>
         <tr><td style='padding:10px 0;color:rgba(255,255,255,.5)'>Thời gian</td><td style='color:#fff'>" . date('d/m/Y H:i') . "</td></tr>
       </table>
@@ -136,7 +138,7 @@ function notify_admin_new_registration(array $user, array $tenant): void {
 }
 
 // Notify admin about access request from main domain
-function notify_admin_access_request(string $name, string $email, string $org): void {
+function notify_admin_access_request(string $name, string $email, string $org, string $phone = ''): void {
     $admin_email = _env('ADMIN_EMAIL', 'hello@luminaglobal.info.vn');
     $admin_url   = 'https://' . _env('LUMINA_BASE_DOMAIN', 'luminaglobal.info.vn') . '/admin.php';
     $html = "
@@ -146,6 +148,7 @@ function notify_admin_access_request(string $name, string $email, string $org): 
       <table style='width:100%;border-collapse:collapse'>
         <tr><td style='padding:10px 0;color:rgba(255,255,255,.5);width:120px'>Tên</td><td style='color:#fff;font-weight:700'>{$name}</td></tr>
         <tr><td style='padding:10px 0;color:rgba(255,255,255,.5)'>Email</td><td style='color:#fff'>{$email}</td></tr>
+        <tr><td style='padding:10px 0;color:rgba(255,255,255,.5)'>SĐT</td><td style='color:#fff'>" . ($phone ?: '—') . "</td></tr>
         <tr><td style='padding:10px 0;color:rgba(255,255,255,.5)'>Tổ chức</td><td style='color:#fff'>{$org}</td></tr>
       </table>
       <a href='{$admin_url}' style='display:inline-block;margin-top:24px;padding:12px 28px;background:#00C9B1;color:#07071a;border-radius:100px;text-decoration:none;font-weight:700'>Xem trên Admin →</a>

@@ -11,6 +11,7 @@ $action = $body['action'] ?? '';
 if ($action === 'request_access') {
     $name  = trim($body['name']  ?? '');
     $email = trim($body['email'] ?? '');
+    $phone = trim($body['phone'] ?? '');
     $org   = trim($body['org']   ?? '');
     $msg   = trim($body['msg']   ?? '');
 
@@ -22,10 +23,10 @@ if ($action === 'request_access') {
         [':e' => strtolower($email), ':t' => time() - 86400]);
     if ($dup) { echo json_encode(['error' => 'Email này đã gửi yêu cầu trong 24h qua']); exit; }
 
-    db_exec('INSERT INTO access_requests(name,email,organization,message) VALUES(:n,:e,:o,:m)',
-        [':n' => $name, ':e' => strtolower($email), ':o' => $org, ':m' => $msg]);
+    db_exec('INSERT INTO access_requests(name,email,phone,organization,message) VALUES(:n,:e,:ph,:o,:m)',
+        [':n' => $name, ':e' => strtolower($email), ':ph' => $phone, ':o' => $org, ':m' => $msg]);
 
-    notify_admin_access_request($name, $email, $org);
+    notify_admin_access_request($name, $email, $org, $phone);
     echo json_encode(['ok' => true]);
     exit;
 }
@@ -35,7 +36,7 @@ $tenant = detect_tenant();
 if (!$tenant) { echo json_encode(['error' => 'Tenant không xác định']); exit; }
 
 if ($action === 'register') {
-    $res = register_user($tenant['id'], $body['email'] ?? '', $body['password'] ?? '', $body['name'] ?? '');
+    $res = register_user($tenant['id'], $body['email'] ?? '', $body['password'] ?? '', $body['name'] ?? '', $body['phone'] ?? '');
     if (isset($res['error'])) { echo json_encode(['error' => $res['error']]); exit; }
 
     // Notify admin

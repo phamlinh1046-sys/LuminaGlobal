@@ -227,12 +227,13 @@ if ($is_admin) {
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Tên</th><th>Email</th><th>Tổ chức</th><th>Mục đích</th><th>Thời gian</th><th></th></tr></thead>
+        <thead><tr><th>Tên</th><th>Email</th><th>SĐT</th><th>Tổ chức</th><th>Mục đích</th><th>Thời gian</th><th></th></tr></thead>
         <tbody>
           <?php foreach ($access_requests as $r): ?>
           <tr id="req-<?= $r['id'] ?>">
             <td class="td-name"><?= htmlspecialchars($r['name']) ?></td>
             <td class="td-email"><?= htmlspecialchars($r['email']) ?></td>
+            <td class="td-org"><?= htmlspecialchars($r['phone'] ?? '—') ?></td>
             <td class="td-org"><?= htmlspecialchars($r['organization'] ?: '—') ?></td>
             <td class="td-org" style="max-width:200px;font-size:.8rem;color:rgba(255,255,255,.4)"><?= htmlspecialchars($r['message'] ?: '—') ?></td>
             <td class="td-date"><?= date('d/m H:i', (int)$r['created_at']) ?></td>
@@ -257,15 +258,16 @@ if ($is_admin) {
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Tên</th><th>Email</th><th>Tenant</th><th>Đăng ký</th><th>Ghi chú</th><th>Hành động</th></tr></thead>
+        <thead><tr><th>Tên</th><th>Email</th><th>SĐT</th><th>Tenant</th><th>Đăng ký</th><th>Ghi chú</th><th>Hành động</th></tr></thead>
         <tbody>
           <?php if (empty($pending_users)): ?>
-          <tr class="empty-row"><td colspan="6">Không có user nào đang chờ duyệt ✓</td></tr>
+          <tr class="empty-row"><td colspan="7">Không có user nào đang chờ duyệt ✓</td></tr>
           <?php else: ?>
           <?php foreach ($pending_users as $u): ?>
           <tr id="user-<?= $u['id'] ?>">
             <td class="td-name"><?= htmlspecialchars($u['name']) ?></td>
             <td class="td-email"><?= htmlspecialchars($u['email']) ?></td>
+            <td class="td-org"><?= htmlspecialchars($u['phone'] ?? '—') ?></td>
             <td class="td-tenant"><?= htmlspecialchars($u['tenant_name']) ?></td>
             <td class="td-date"><?= date('d/m/Y H:i', (int)$u['created_at']) ?></td>
             <td><input class="note-input" type="text" placeholder="Ghi chú..." id="note-<?= $u['id'] ?>"></td>
@@ -290,7 +292,7 @@ if ($is_admin) {
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Tên</th><th>Email</th><th>Tenant</th><th>Trạng thái</th><th>Đăng ký</th><th>Hành động</th></tr></thead>
+        <thead><tr><th>Tên</th><th>Email</th><th>SĐT</th><th>Tenant</th><th>Trạng thái</th><th>Đăng ký</th><th>Hành động</th></tr></thead>
         <tbody>
           <?php foreach ($all_users as $u):
             $sp = ['pending'=>'sp-pending','approved'=>'sp-approved','rejected'=>'sp-rejected'][$u['status']] ?? 'sp-pending';
@@ -299,6 +301,7 @@ if ($is_admin) {
           <tr id="u-<?= $u['id'] ?>">
             <td class="td-name"><?= htmlspecialchars($u['name']) ?></td>
             <td class="td-email"><?= htmlspecialchars($u['email']) ?></td>
+            <td class="td-org"><?= htmlspecialchars($u['phone'] ?? '—') ?></td>
             <td class="td-tenant"><?= htmlspecialchars($u['tenant_name']) ?></td>
             <td><span class="status-pill <?= $sp ?>"><?= $sl ?></span></td>
             <td class="td-date"><?= date('d/m/Y', (int)$u['created_at']) ?></td>

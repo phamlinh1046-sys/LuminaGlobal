@@ -134,6 +134,10 @@ $base_domain = LUMINA_BASE_DOMAIN;
         <input class="form-input" type="email" name="email" placeholder="you@company.com" required>
       </div>
       <div class="form-group">
+        <label class="form-label">Số điện thoại</label>
+        <input class="form-input" type="tel" name="phone" placeholder="0901 234 567" autocomplete="tel">
+      </div>
+      <div class="form-group">
         <label class="form-label">Tổ chức / Công ty</label>
         <input class="form-input" type="text" name="org" placeholder="Tên công ty">
       </div>
@@ -189,6 +193,10 @@ $base_domain = LUMINA_BASE_DOMAIN;
     <div class="form-group">
       <label class="form-label">Họ và tên</label>
       <input class="form-input" type="text" name="name" placeholder="Nguyễn Văn A" required autocomplete="name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Số điện thoại</label>
+      <input class="form-input" type="tel" name="phone" placeholder="0901 234 567" autocomplete="tel">
     </div>
     <div class="form-group">
       <label class="form-label">Email</label>
@@ -302,6 +310,7 @@ async function submitRequest(e) {
     action : 'request_access',
     name   : form.name.value,
     email  : form.email.value,
+    phone  : form.phone.value,
     org    : form.org.value,
     msg    : form.msg.value,
   };
