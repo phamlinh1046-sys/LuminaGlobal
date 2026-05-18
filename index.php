@@ -10,6 +10,11 @@ if ($user && $tenant && $user['tenant_id'] == $tenant['id']) {
     header('Location: /dashboard.php'); exit;
 }
 
+// Tenant subdomain + chưa đăng nhập → thẳng đến login
+if ($tenant && !$user) {
+    header('Location: /login.php'); exit;
+}
+
 $is_main     = !$tenant;
 $brand_color = $tenant['primary_color'] ?? '#6C47FF';
 $tenant_name = $tenant ? htmlspecialchars($tenant['name']) : 'Lumina';
