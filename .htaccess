@@ -1,0 +1,11 @@
+Options -Indexes
+
+RewriteEngine On
+
+# Bảo vệ file nhạy cảm
+RewriteRule ^(lumina\.db|\.env|config\.php)$ - [F,L]
+
+# Route tất cả request qua index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]

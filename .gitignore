@@ -1,0 +1,15 @@
+# Data & secrets
+.env
+*.db
+*.sqlite
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Logs
+*.log
+
+# Temp
+*.tmp
+*.swp

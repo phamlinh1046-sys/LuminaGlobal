@@ -1,0 +1,32 @@
+# ============================================================
+#  .htaccess — Becoming A Trainer (Apache)
+# ============================================================
+
+# Chặn truy cập trực tiếp vào file nhạy cảm
+<FilesMatch "\.(db|sqlite|sqlite3|csv|txt|md|gitignore|py|docx)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Chặn truy cập vào config.php trực tiếp qua URL
+<Files "config.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Chặn truy cập thư mục nhạy cảm
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^__pycache__/ - [F,L]
+    RewriteRule ^data/ - [F,L]
+    RewriteRule ^\.claude/ - [F,L]
+</IfModule>
+
+# Tắt directory listing
+Options -Indexes
+
+# Bảo vệ .htaccess
+<Files ".htaccess">
+    Order Allow,Deny
+    Deny from all
+</Files>
