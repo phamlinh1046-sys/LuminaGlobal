@@ -23,8 +23,12 @@ function _env(string $key, string $default = ''): string {
 }
 
 define('RESEND_API_KEY',      _env('RESEND_API_KEY'));
-define('ANTHROPIC_API_KEY',   _env('ANTHROPIC_API_KEY'));
 define('FROM_EMAIL',          _env('FROM_EMAIL', 'Lumina <hello@luminaglobal.info.vn>'));
 define('LUMINA_BASE_DOMAIN',  _env('LUMINA_BASE_DOMAIN', 'luminaglobal.info.vn'));
 define('ADMIN_USERNAME',      _env('ADMIN_USERNAME', 'admin'));
 define('ADMIN_PASSWORD_HASH', _env('ADMIN_PASSWORD_HASH'));
+
+// GoClaw AI Gateway
+define('GOCLAW_API_KEY',  _env('GOCLAW_API_KEY'));
+define('GOCLAW_BASE_URL', _env('GOCLAW_BASE_URL', 'https://admin.luminaglobal.info.vn'));
+define('GOCLAW_AGENT',    _env('GOCLAW_AGENT', 'lumi'));
