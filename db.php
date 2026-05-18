@@ -80,6 +80,27 @@ function lumina_db(): SQLite3 {
         FOREIGN KEY(assessment_id) REFERENCES assessments(id)
     )");
 
+    // Migration: add status column to users (existing users → approved)
+    try {
+        $db->exec("ALTER TABLE users ADD COLUMN status TEXT NOT NULL DEFAULT 'approved'");
+    } catch (Exception $e) { /* column already exists */ }
+
+    // Migration: add notes column to users
+    try {
+        $db->exec("ALTER TABLE users ADD COLUMN admin_note TEXT DEFAULT ''");
+    } catch (Exception $e) { /* column already exists */ }
+
+    // Access requests from main domain (invite-only leads)
+    $db->exec("CREATE TABLE IF NOT EXISTS access_requests (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        organization TEXT DEFAULT '',
+        message TEXT DEFAULT '',
+        status TEXT DEFAULT 'new',
+        created_at INTEGER DEFAULT (strftime('%s','now'))
+    )");
+
     // Seed demo tenant
     $check = $db->querySingle("SELECT id FROM tenants WHERE slug='demo'");
     if (!$check) {
