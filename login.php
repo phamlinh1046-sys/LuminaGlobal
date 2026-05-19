@@ -116,47 +116,76 @@ $base_domain = LUMINA_BASE_DOMAIN;
   </div>
 
   <?php if ($is_main): ?>
-  <!-- ── MAIN DOMAIN: Request Access ── -->
-  <div class="request-header">
-    <div class="request-badge">✦ Invite Only</div>
-    <div class="request-title">Yêu cầu truy cập</div>
-    <div class="request-sub">Lumina Global là nền tảng invitation-only.<br>Điền thông tin để admin liên hệ và cấp quyền truy cập.</div>
+  <!-- ── MAIN DOMAIN: Login + Request Access tabs ── -->
+  <div class="auth-tabs" role="tablist">
+    <button class="auth-tab active" id="tab-main-login" onclick="switchMainTab('login')">Đăng nhập</button>
+    <button class="auth-tab" id="tab-main-request" onclick="switchMainTab('request')">Yêu cầu truy cập</button>
   </div>
 
-  <div id="req-form-wrap">
-    <form id="req-form" onsubmit="submitRequest(event)">
+  <!-- Status alerts -->
+  <div id="alert-pending-main" class="status-alert pending">
+    ⏳ <strong>Tài khoản đang chờ phê duyệt.</strong> Admin sẽ liên hệ khi được duyệt.
+  </div>
+  <div id="alert-rejected-main" class="status-alert rejected">
+    ✕ <strong>Tài khoản không được phê duyệt.</strong> Liên hệ <a href="mailto:hello@<?= $base_domain ?>" style="color:inherit">hello@<?= $base_domain ?></a>.
+  </div>
+
+  <!-- LOGIN TAB -->
+  <div id="main-login-section">
+    <form id="form-main-login" onsubmit="submitMainLogin(event)">
       <div class="form-group">
-        <label class="form-label">Họ và tên *</label>
-        <input class="form-input" type="text" name="name" placeholder="Nguyễn Văn A" required>
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" name="email" placeholder="you@example.com" required autocomplete="email">
       </div>
       <div class="form-group">
-        <label class="form-label">Email công việc *</label>
-        <input class="form-input" type="email" name="email" placeholder="you@company.com" required>
+        <label class="form-label">Mật khẩu</label>
+        <input class="form-input" type="password" name="password" placeholder="••••••••" required autocomplete="current-password">
       </div>
-      <div class="form-group">
-        <label class="form-label">Số điện thoại <span style="color:#f87171">*</span></label>
-        <input class="form-input" type="tel" name="phone" placeholder="0901 234 567" autocomplete="tel" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Tổ chức / Công ty</label>
-        <input class="form-input" type="text" name="org" placeholder="Tên công ty">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Bạn muốn dùng Lumina để làm gì?</label>
-        <input class="form-input" type="text" name="msg" placeholder="VD: đánh giá đội nhóm, coaching cá nhân...">
-      </div>
-      <div id="req-error" class="form-error" style="display:none;margin-bottom:10px"></div>
-      <button class="btn-auth" type="submit" id="req-btn">Gửi yêu cầu →</button>
+      <div id="err-main-login" class="form-error" style="display:none;margin-bottom:8px"></div>
+      <button class="btn-auth" type="submit" id="btn-main-login">Đăng nhập →</button>
     </form>
   </div>
 
-  <div class="pending-box" id="req-success">
-    <div class="pending-icon">📬</div>
-    <div class="pending-title">Đã gửi yêu cầu thành công!</div>
-    <div class="pending-sub">Admin sẽ liên hệ với bạn qua email trong 1–2 ngày làm việc.<br>Cảm ơn bạn đã quan tâm đến Lumina.</div>
+  <!-- REQUEST ACCESS TAB -->
+  <div id="main-request-section" style="display:none">
+    <div style="text-align:center;margin-bottom:20px">
+      <div class="request-badge" style="display:inline-flex;align-items:center;gap:7px;background:rgba(108,71,255,.15);border:1px solid rgba(108,71,255,.3);color:#a78bfa;border-radius:100px;padding:5px 16px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">✦ Invite Only</div>
+      <div style="font-size:.85rem;color:rgba(255,255,255,.45);line-height:1.6">Điền thông tin để admin liên hệ và cấp quyền truy cập.</div>
+    </div>
+    <div id="req-form-wrap">
+      <form id="req-form" onsubmit="submitRequest(event)">
+        <div class="form-group">
+          <label class="form-label">Họ và tên *</label>
+          <input class="form-input" type="text" name="name" placeholder="Nguyễn Văn A" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email công việc *</label>
+          <input class="form-input" type="email" name="email" placeholder="you@company.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Số điện thoại <span style="color:#f87171">*</span></label>
+          <input class="form-input" type="tel" name="phone" placeholder="0901 234 567" autocomplete="tel" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tổ chức / Công ty</label>
+          <input class="form-input" type="text" name="org" placeholder="Tên công ty">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bạn muốn dùng Lumina để làm gì?</label>
+          <input class="form-input" type="text" name="msg" placeholder="VD: đánh giá đội nhóm, coaching cá nhân...">
+        </div>
+        <div id="req-error" class="form-error" style="display:none;margin-bottom:10px"></div>
+        <button class="btn-auth" type="submit" id="req-btn">Gửi yêu cầu →</button>
+      </form>
+    </div>
+    <div class="pending-box" id="req-success">
+      <div class="pending-icon">📬</div>
+      <div class="pending-title">Đã gửi yêu cầu thành công!</div>
+      <div class="pending-sub">Admin sẽ liên hệ với bạn qua email trong 1–2 ngày làm việc.<br>Cảm ơn bạn đã quan tâm đến Lumina.</div>
+    </div>
   </div>
 
-  <p class="auth-footer">Đã có tài khoản? <a href="https://demo.<?= $base_domain ?>/login.php">Đăng nhập tại subdomain →</a></p>
+  <p class="auth-footer">© Lumina Global · <a href="/">Trang chủ</a></p>
 
   <?php else: ?>
   <!-- ── TENANT SUBDOMAIN: Register / Login ── -->
@@ -300,7 +329,57 @@ async function submitAuth(e, action) {
 }
 
 <?php else: ?>
-// Main domain: Request Access form
+// Main domain
+function switchMainTab(tab) {
+  document.getElementById('main-login-section').style.display    = tab === 'login'   ? '' : 'none';
+  document.getElementById('main-request-section').style.display  = tab === 'request' ? '' : 'none';
+  document.getElementById('tab-main-login').classList.toggle('active',   tab === 'login');
+  document.getElementById('tab-main-request').classList.toggle('active', tab === 'request');
+  document.getElementById('alert-pending-main').classList.remove('show');
+  document.getElementById('alert-rejected-main').classList.remove('show');
+}
+
+if (location.hash === '#register') { switchMainTab('request'); }
+
+async function submitMainLogin(e) {
+  e.preventDefault();
+  const form = e.target;
+  const btn  = document.getElementById('btn-main-login');
+  const err  = document.getElementById('err-main-login');
+  document.getElementById('alert-pending-main').classList.remove('show');
+  document.getElementById('alert-rejected-main').classList.remove('show');
+  btn.disabled = true; btn.textContent = 'Đang xử lý...'; err.style.display = 'none';
+
+  try {
+    const res  = await fetch('/api/auth.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'login', email: form.email.value, password: form.password.value })
+    });
+    const json = await res.json();
+
+    if (json.error === 'pending') {
+      document.getElementById('alert-pending-main').classList.add('show');
+      btn.disabled = false; btn.textContent = 'Đăng nhập →'; return;
+    }
+    if (json.error === 'rejected') {
+      document.getElementById('alert-rejected-main').classList.add('show');
+      btn.disabled = false; btn.textContent = 'Đăng nhập →'; return;
+    }
+    if (json.error) {
+      err.textContent = json.message || json.error;
+      err.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Đăng nhập →'; return;
+    }
+    btn.textContent = '✓ Thành công!';
+    setTimeout(() => { window.location.href = json.redirect || '/'; }, 300);
+  } catch {
+    err.textContent = 'Lỗi kết nối, vui lòng thử lại.';
+    err.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Đăng nhập →';
+  }
+}
+
 async function submitRequest(e) {
   e.preventDefault();
   const form = e.target;

@@ -39,20 +39,51 @@ function auth_login(int $user_id): string {
         'INSERT INTO sessions(user_id,token,expires_at) VALUES(:u,:t,:e)',
         [':u' => $user_id, ':t' => $token, ':e' => time() + SESSION_TTL]
     );
-    setcookie(SESSION_COOKIE, $token, [
+    $base   = _env('LUMINA_BASE_DOMAIN', '');
+    $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+    $opts   = [
         'expires'  => time() + SESSION_TTL,
         'path'     => '/',
         'httponly' => true,
         'samesite' => 'Lax',
-        'secure'   => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
-    ]);
+        'secure'   => $secure,
+    ];
+    // Share cookie across all subdomains on production (domain contains a dot)
+    if ($base && substr_count($base, '.') >= 1) {
+        $opts['domain'] = '.' . $base;
+    }
+    setcookie(SESSION_COOKIE, $token, $opts);
     return $token;
+}
+
+// Login from main domain — search across all tenants by email
+function login_user_any_tenant(string $email, string $password): array {
+    $email = strtolower(trim($email));
+    $user  = db_row(
+        'SELECT u.*, t.slug FROM users u JOIN tenants t ON t.id=u.tenant_id WHERE u.email=:e ORDER BY u.created_at DESC LIMIT 1',
+        [':e' => $email]
+    );
+    if (!$user || !password_verify($password, $user['password_hash'])) {
+        return ['error' => 'Email hoặc mật khẩu không đúng'];
+    }
+    if ($user['status'] === 'pending') {
+        return ['error' => 'pending', 'message' => 'Tài khoản đang chờ admin phê duyệt. Bạn sẽ nhận thông báo khi được duyệt.'];
+    }
+    if ($user['status'] === 'rejected') {
+        return ['error' => 'rejected', 'message' => 'Tài khoản không được phê duyệt. Liên hệ hello@luminaglobal.info.vn để biết thêm.'];
+    }
+    auth_login($user['id']);
+    return ['id' => $user['id'], 'slug' => $user['slug']];
 }
 
 function auth_logout(): void {
     $token = $_COOKIE[SESSION_COOKIE] ?? '';
     if ($token) db_exec('DELETE FROM sessions WHERE token=:t', [':t' => $token]);
-    setcookie(SESSION_COOKIE, '', time() - 3600, '/');
+    $base   = _env('LUMINA_BASE_DOMAIN', '');
+    $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+    $opts   = ['expires' => time() - 3600, 'path' => '/', 'httponly' => true, 'samesite' => 'Lax', 'secure' => $secure];
+    if ($base && substr_count($base, '.') >= 1) $opts['domain'] = '.' . $base;
+    setcookie(SESSION_COOKIE, '', $opts);
 }
 
 function register_user(int $tenant_id, string $email, string $password, string $name, string $phone = ''): array {

@@ -31,42 +31,62 @@ if ($action === 'request_access') {
     exit;
 }
 
-// All other actions require a tenant
+// Detect tenant (may be null on main domain)
 $tenant = detect_tenant();
+
+// login from main domain — no tenant required
+if ($action === 'login') {
+    if ($tenant) {
+        // Normal subdomain login
+        $res = login_user($tenant['id'], $body['email'] ?? '', $body['password'] ?? '');
+        $slug = $tenant['slug'];
+    } else {
+        // Main domain: search across all tenants
+        $res  = login_user_any_tenant($body['email'] ?? '', $body['password'] ?? '');
+        $slug = $res['slug'] ?? '';
+    }
+
+    if (isset($res['error'])) {
+        echo json_encode(['error' => $res['error'], 'message' => $res['message'] ?? '']);
+        exit;
+    }
+
+    // Build redirect URL (absolute for cross-domain, relative for same-domain)
+    $latest = db_row(
+        'SELECT id, status FROM assessments WHERE user_id=:u ORDER BY created_at DESC LIMIT 1',
+        [':u' => $res['id']]
+    );
+    $path = ($latest && $latest['status'] === 'completed')
+        ? '/results.php?id=' . $latest['id']
+        : '/assessment.php';
+
+    if (!$tenant && $slug) {
+        $scheme   = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $redirect = "$scheme://$slug." . _env('LUMINA_BASE_DOMAIN', 'luminaglobal.info.vn') . $path;
+    } else {
+        $redirect = $path;
+    }
+
+    echo json_encode(['ok' => true, 'redirect' => $redirect]);
+    exit;
+}
+
+// logout — works from any domain
+if ($action === 'logout') {
+    auth_logout();
+    echo json_encode(['ok' => true]);
+    exit;
+}
+
+// Remaining actions require a tenant
 if (!$tenant) { echo json_encode(['error' => 'Tenant không xác định']); exit; }
 
 if ($action === 'register') {
     $res = register_user($tenant['id'], $body['email'] ?? '', $body['password'] ?? '', $body['name'] ?? '', $body['phone'] ?? '');
     if (isset($res['error'])) { echo json_encode(['error' => $res['error']]); exit; }
 
-    // Notify admin
     notify_admin_new_registration($res, $tenant);
-
     echo json_encode(['ok' => true, 'pending' => true]);
-
-} elseif ($action === 'login') {
-    $res = login_user($tenant['id'], $body['email'] ?? '', $body['password'] ?? '');
-
-    if (isset($res['error'])) {
-        // pending/rejected are special states — return them as-is so JS can show correct UI
-        echo json_encode(['error' => $res['error'], 'message' => $res['message'] ?? '']);
-        exit;
-    }
-
-    // Redirect after login: results if done, else assessment
-    $latest = db_row(
-        'SELECT id, status FROM assessments WHERE user_id=:u ORDER BY created_at DESC LIMIT 1',
-        [':u' => $res['id']]
-    );
-    $redirect = ($latest && $latest['status'] === 'completed')
-        ? '/results.php?id=' . $latest['id']
-        : '/assessment.php';
-
-    echo json_encode(['ok' => true, 'redirect' => $redirect]);
-
-} elseif ($action === 'logout') {
-    auth_logout();
-    echo json_encode(['ok' => true]);
 
 } else {
     http_response_code(400);
