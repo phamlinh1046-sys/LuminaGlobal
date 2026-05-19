@@ -96,19 +96,23 @@ if ($action === 'change_password') {
 // ── Remaining actions require a tenant ─────────────────────
 if (!$tenant) { echo json_encode(['error' => 'Tenant không xác định']); exit; }
 
-// ── Register (no password — admin will send it on approval) ─
+// ── Register (auto-approved, login immediately) ────────────
 if ($action === 'register') {
     $res = register_user(
         $tenant['id'],
-        $body['email'] ?? '',
-        $body['name']  ?? '',
-        $body['phone'] ?? '',
-        $body['org']   ?? ''
+        $body['email']    ?? '',
+        $body['password'] ?? '',
+        $body['name']     ?? '',
+        $body['phone']    ?? '',
+        $body['org']      ?? ''
     );
     if (isset($res['error'])) { echo json_encode(['error' => $res['error']]); exit; }
 
-    notify_admin_new_registration($res, $tenant);
-    echo json_encode(['ok' => true, 'pending' => true]);
+    // Auto-login right after registration
+    auth_login($res['id']);
+
+    $redirect = '/assessment.php';
+    echo json_encode(['ok' => true, 'redirect' => $redirect]);
     exit;
 }
 

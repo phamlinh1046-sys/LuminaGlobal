@@ -79,8 +79,8 @@ function generate_temp_password(int $len = 10): string {
     return $pass;
 }
 
-// ── Register (no password — admin will set it on approval) ─
-function register_user(int $tenant_id, string $email, string $name, string $phone = '', string $org = ''): array {
+// ── Register (with password — immediately active) ──────────
+function register_user(int $tenant_id, string $email, string $password, string $name, string $phone = '', string $org = ''): array {
     $email = strtolower(trim($email));
     $phone = trim($phone);
     $name  = trim($name);
@@ -89,16 +89,16 @@ function register_user(int $tenant_id, string $email, string $name, string $phon
     if (strlen($name) < 2)  return ['error' => 'Vui lòng nhập họ tên (tối thiểu 2 ký tự)'];
     if (!$phone)             return ['error' => 'Số điện thoại là bắt buộc'];
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) return ['error' => 'Email không hợp lệ'];
+    if (strlen($password) < 6) return ['error' => 'Mật khẩu tối thiểu 6 ký tự'];
 
     $exists = db_row('SELECT id FROM users WHERE tenant_id=:t AND email=:e', [':t' => $tenant_id, ':e' => $email]);
     if ($exists) return ['error' => 'Email này đã được đăng ký'];
 
-    // Store a random unusable hash — user has no password until admin approves
-    $placeholder = password_hash(bin2hex(random_bytes(32)), PASSWORD_BCRYPT);
-    $id = db_exec(
+    $hash = password_hash($password, PASSWORD_BCRYPT);
+    $id   = db_exec(
         'INSERT INTO users(tenant_id,email,password_hash,name,phone,org,role,status)
-         VALUES(:t,:e,:h,:n,:p,:o,"member","pending")',
-        [':t' => $tenant_id, ':e' => $email, ':h' => $placeholder,
+         VALUES(:t,:e,:h,:n,:p,:o,"member","approved")',
+        [':t' => $tenant_id, ':e' => $email, ':h' => $hash,
          ':n' => $name, ':p' => $phone, ':o' => $org]
     );
     return ['id' => $id, 'email' => $email, 'name' => $name, 'phone' => $phone, 'org' => $org];

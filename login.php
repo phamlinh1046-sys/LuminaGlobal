@@ -235,21 +235,15 @@ $base_domain = LUMINA_BASE_DOMAIN;
       <label class="form-label">Tổ chức / Công ty</label>
       <input class="form-input" type="text" name="org" placeholder="Tên công ty (tuỳ chọn)">
     </div>
+    <div class="form-group">
+      <label class="form-label">Mật khẩu <span style="color:#f87171">*</span></label>
+      <input class="form-input" type="password" name="password" placeholder="Tối thiểu 6 ký tự" required autocomplete="new-password" minlength="6">
+    </div>
     <div id="err-register" class="form-error" style="display:none;margin-bottom:8px"></div>
-    <button class="btn-auth" type="submit" id="btn-register">Gửi yêu cầu đăng ký →</button>
+    <button class="btn-auth" type="submit" id="btn-register">Đăng ký →</button>
   </form>
 
-  <!-- Pending state (after register) -->
-  <div class="pending-box" id="pending-box">
-    <div class="pending-icon">📬</div>
-    <div class="pending-title">Yêu cầu đã được gửi!</div>
-    <div class="pending-sub">
-      Admin sẽ phê duyệt và gửi <strong style="color:#5eead4">mật khẩu đăng nhập qua email</strong> của bạn.<br>
-      Vui lòng kiểm tra hộp thư sau khi được duyệt.
-    </div>
-  </div>
-
-  <p class="auth-footer">Không cần mật khẩu khi đăng ký — mật khẩu sẽ được cấp sau khi được duyệt.</p>
+  <p class="auth-footer">Bằng cách đăng ký, bạn đồng ý với điều khoản sử dụng của Lumina.</p>
   <?php endif; ?>
 </div>
 
@@ -276,8 +270,6 @@ async function submitAuth(e, action) {
   const err  = document.getElementById('err-' + action);
   const data = Object.fromEntries(new FormData(form));
   data.action = action;
-  // Register no longer uses password — remove if accidentally included
-  if (action === 'register') { delete data.password; }
 
   btn.disabled = true;
   btn.textContent = 'Đang xử lý...';
@@ -288,14 +280,6 @@ async function submitAuth(e, action) {
   try {
     const res  = await fetch('/api/auth.php', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
     const json = await res.json();
-
-    if (action === 'register' && json.ok && json.pending) {
-      // Show pending state
-      form.style.display = 'none';
-      document.getElementById('tab-login').parentElement.style.display = 'none';
-      document.getElementById('pending-box').classList.add('show');
-      return;
-    }
 
     if (json.error === 'pending') {
       document.getElementById('alert-pending').classList.add('show');
