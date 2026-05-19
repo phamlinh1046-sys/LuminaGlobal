@@ -58,9 +58,10 @@ function auth_logout(): void {
 function register_user(int $tenant_id, string $email, string $password, string $name, string $phone = ''): array {
     $email = strtolower(trim($email));
     $phone = trim($phone);
+    if (strlen(trim($name)) < 2) return ['error' => 'Vui lòng nhập họ tên'];
+    if (!$phone) return ['error' => 'Số điện thoại là bắt buộc'];
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) return ['error' => 'Email không hợp lệ'];
     if (strlen($password) < 6) return ['error' => 'Mật khẩu tối thiểu 6 ký tự'];
-    if (strlen(trim($name)) < 2) return ['error' => 'Vui lòng nhập họ tên'];
 
     $exists = db_row('SELECT id FROM users WHERE tenant_id=:t AND email=:e', [':t' => $tenant_id, ':e' => $email]);
     if ($exists) return ['error' => 'Email này đã được đăng ký'];

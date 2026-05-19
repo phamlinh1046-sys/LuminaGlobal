@@ -134,8 +134,8 @@ $base_domain = LUMINA_BASE_DOMAIN;
         <input class="form-input" type="email" name="email" placeholder="you@company.com" required>
       </div>
       <div class="form-group">
-        <label class="form-label">Số điện thoại</label>
-        <input class="form-input" type="tel" name="phone" placeholder="0901 234 567" autocomplete="tel">
+        <label class="form-label">Số điện thoại <span style="color:#f87171">*</span></label>
+        <input class="form-input" type="tel" name="phone" placeholder="0901 234 567" autocomplete="tel" required>
       </div>
       <div class="form-group">
         <label class="form-label">Tổ chức / Công ty</label>
@@ -195,8 +195,8 @@ $base_domain = LUMINA_BASE_DOMAIN;
       <input class="form-input" type="text" name="name" placeholder="Nguyễn Văn A" required autocomplete="name">
     </div>
     <div class="form-group">
-      <label class="form-label">Số điện thoại</label>
-      <input class="form-input" type="tel" name="phone" placeholder="0901 234 567" autocomplete="tel">
+      <label class="form-label">Số điện thoại <span style="color:#f87171">*</span></label>
+      <input class="form-input" type="tel" name="phone" placeholder="0901 234 567" autocomplete="tel" required>
     </div>
     <div class="form-group">
       <label class="form-label">Email</label>

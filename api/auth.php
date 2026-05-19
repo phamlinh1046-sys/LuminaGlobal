@@ -15,7 +15,7 @@ if ($action === 'request_access') {
     $org   = trim($body['org']   ?? '');
     $msg   = trim($body['msg']   ?? '');
 
-    if (!$name || !$email) { echo json_encode(['error' => 'Vui lòng điền đầy đủ thông tin']); exit; }
+    if (!$name || !$email || !$phone) { echo json_encode(['error' => 'Vui lòng điền đầy đủ thông tin (*)']); exit; }
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) { echo json_encode(['error' => 'Email không hợp lệ']); exit; }
 
     // Check duplicate
