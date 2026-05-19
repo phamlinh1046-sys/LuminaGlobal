@@ -220,7 +220,7 @@ $base_domain = LUMINA_BASE_DOMAIN;
   <!-- REGISTER -->
   <form id="form-register" style="display:none" onsubmit="submitAuth(event,'register')">
     <div class="form-group">
-      <label class="form-label">Họ và tên</label>
+      <label class="form-label">Họ và tên <span style="color:#f87171">*</span></label>
       <input class="form-input" type="text" name="name" placeholder="Nguyễn Văn A" required autocomplete="name">
     </div>
     <div class="form-group">
@@ -228,28 +228,28 @@ $base_domain = LUMINA_BASE_DOMAIN;
       <input class="form-input" type="tel" name="phone" placeholder="0901 234 567" autocomplete="tel" required>
     </div>
     <div class="form-group">
-      <label class="form-label">Email</label>
+      <label class="form-label">Email <span style="color:#f87171">*</span></label>
       <input class="form-input" type="email" name="email" placeholder="you@example.com" required autocomplete="email">
     </div>
     <div class="form-group">
-      <label class="form-label">Mật khẩu</label>
-      <input class="form-input" type="password" name="password" placeholder="Tối thiểu 6 ký tự" required autocomplete="new-password" minlength="6">
+      <label class="form-label">Tổ chức / Công ty</label>
+      <input class="form-input" type="text" name="org" placeholder="Tên công ty (tuỳ chọn)">
     </div>
     <div id="err-register" class="form-error" style="display:none;margin-bottom:8px"></div>
-    <button class="btn-auth" type="submit" id="btn-register">Đăng ký →</button>
+    <button class="btn-auth" type="submit" id="btn-register">Gửi yêu cầu đăng ký →</button>
   </form>
 
   <!-- Pending state (after register) -->
   <div class="pending-box" id="pending-box">
-    <div class="pending-icon">⏳</div>
-    <div class="pending-title">Tài khoản đang chờ duyệt</div>
+    <div class="pending-icon">📬</div>
+    <div class="pending-title">Yêu cầu đã được gửi!</div>
     <div class="pending-sub">
-      Đăng ký thành công! Admin sẽ phê duyệt tài khoản của bạn.<br>
-      Bạn sẽ nhận thông báo khi được duyệt.
+      Admin sẽ phê duyệt và gửi <strong style="color:#5eead4">mật khẩu đăng nhập qua email</strong> của bạn.<br>
+      Vui lòng kiểm tra hộp thư sau khi được duyệt.
     </div>
   </div>
 
-  <p class="auth-footer">Bằng cách đăng ký, bạn đồng ý với điều khoản sử dụng của Lumina.</p>
+  <p class="auth-footer">Không cần mật khẩu khi đăng ký — mật khẩu sẽ được cấp sau khi được duyệt.</p>
   <?php endif; ?>
 </div>
 
@@ -276,6 +276,8 @@ async function submitAuth(e, action) {
   const err  = document.getElementById('err-' + action);
   const data = Object.fromEntries(new FormData(form));
   data.action = action;
+  // Register no longer uses password — remove if accidentally included
+  if (action === 'register') { delete data.password; }
 
   btn.disabled = true;
   btn.textContent = 'Đang xử lý...';

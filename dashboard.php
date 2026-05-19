@@ -203,6 +203,9 @@ $first_name  = explode(' ', $user_name)[0];
     <a href="/growth-plan.php?id=<?= $latest_result['id'] ?>" class="sidebar-link"><span class="sidebar-icon">🗺️</span> Growth Plan</a>
     <a href="/mentor.php?id=<?= $latest_result['id'] ?>" class="sidebar-link"><span class="sidebar-icon">🤖</span> AI Mentor</a>
     <?php endif; ?>
+    <div style="margin-top:auto;padding-top:16px;border-top:1px solid #f0f0f0;margin-top:20px">
+      <a href="/change-password.php" class="sidebar-link"><span class="sidebar-icon">🔑</span> Đổi mật khẩu</a>
+    </div>
   </aside>
 
   <!-- MAIN -->

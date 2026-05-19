@@ -95,6 +95,11 @@ function lumina_db(): SQLite3 {
         $db->exec("ALTER TABLE users ADD COLUMN phone TEXT DEFAULT ''");
     } catch (Exception $e) { /* column already exists */ }
 
+    // Migration: add org column to users
+    try {
+        $db->exec("ALTER TABLE users ADD COLUMN org TEXT DEFAULT ''");
+    } catch (Exception $e) { /* column already exists */ }
+
     // Migration: add phone column to access_requests
     try {
         $db->exec("ALTER TABLE access_requests ADD COLUMN phone TEXT DEFAULT ''");

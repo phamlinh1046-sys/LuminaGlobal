@@ -26,27 +26,28 @@ if ($is_admin && $_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['admin_l
 
     if ($action === 'approve' || $action === 'reject') {
         $user_id = (int)($body['user_id'] ?? 0);
-        $status  = $action === 'approve' ? 'approved' : 'rejected';
         $note    = trim($body['note'] ?? '');
         if (!$user_id) { echo json_encode(['error' => 'user_id bắt buộc']); exit; }
-        db_exec('UPDATE users SET status=:s, admin_note=:n WHERE id=:id', [':s'=>$status,':n'=>$note,':id'=>$user_id]);
 
         if ($action === 'approve') {
             require_once __DIR__ . '/includes/auth.php';
-            $u = db_row('SELECT u.*,t.slug,t.name AS tenant_name FROM users u JOIN tenants t ON t.id=u.tenant_id WHERE u.id=:id', [':id'=>$user_id]);
+            // Generate password, update user, send email
+            $result = approve_user($user_id);
+            db_exec('UPDATE users SET admin_note=:n WHERE id=:id', [':n' => $note, ':id' => $user_id]);
+
+            $u = db_row(
+                'SELECT u.*,t.slug,t.name AS tenant_name FROM users u JOIN tenants t ON t.id=u.tenant_id WHERE u.id=:id',
+                [':id' => $user_id]
+            );
             if ($u) {
-                $url  = 'https://' . $u['slug'] . '.' . LUMINA_BASE_DOMAIN . '/login.php';
-                $html = "<div style='font-family:Inter,sans-serif;max-width:560px;margin:0 auto;background:#07071a;color:#fff;padding:32px;border-radius:16px'>
-                  <h2 style='color:#00C9B1;margin-bottom:8px'>✅ Tài khoản đã được phê duyệt!</h2>
-                  <p style='color:rgba(255,255,255,.7);margin-bottom:20px'>Xin chào {$u['name']},</p>
-                  <p style='color:rgba(255,255,255,.6);line-height:1.7;margin-bottom:24px'>Tài khoản Lumina của bạn tại <strong style='color:#fff'>{$u['tenant_name']}</strong> đã được phê duyệt. Bạn có thể đăng nhập và bắt đầu hành trình ngay bây giờ.</p>
-                  <a href='{$url}' style='display:inline-block;padding:12px 28px;background:#6C47FF;color:#fff;border-radius:100px;text-decoration:none;font-weight:700'>Đăng nhập ngay →</a>
-                  <p style='color:rgba(255,255,255,.3);font-size:.8rem;margin-top:24px'>Lumina Global · Đo lường & Chuyển hoá Hành vi</p>
-                </div>";
-                send_email($u['email'], $u['name'], '✅ Tài khoản Lumina đã được phê duyệt', $html);
+                $login_url = 'https://' . $u['slug'] . '.' . LUMINA_BASE_DOMAIN . '/login.php';
+                send_approval_email($u, $result['password'], $login_url);
             }
+            echo json_encode(['ok' => true, 'password_sent' => true]); exit;
+        } else {
+            db_exec('UPDATE users SET status="rejected", admin_note=:n WHERE id=:id', [':n' => $note, ':id' => $user_id]);
+            echo json_encode(['ok' => true]); exit;
         }
-        echo json_encode(['ok' => true]); exit;
     }
 
     if ($action === 'close_request') {
