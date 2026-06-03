@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Trò chơi đua thú chibi dễ thương dành cho ngày hội gia đình Family Day. Hãy chọn nhà vô địch của bạn trong số 40 động vật chibi đáng yêu và theo dõi cuộc đua kịch tính!">
+  <title>Family Day Chibi Derby - Đại Hội Đua Thú Gia Đình</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="logo-container" id="logo-header">
+      <h1>FAMILY DAY CHIBI DERBY</h1>
+      <p>Đại Hội Đua Thú Gia Đình 🌸</p>
+    </div>
+  </header>
+
+  <!-- SCREEN 1: LOBBY & PREPARATION -->
+  <main id="screen-lobby" class="screen active">
+    <div class="lobby-layout">
+      
+      <!-- Left Panel: Settings & Selection Grid -->
+      <div class="lobby-main-panel">
+        
+        <!-- Game settings card -->
+        <section class="glass-panel setup-card">
+          <div class="setup-grid">
+            <!-- Duration Setting -->
+            <div class="setup-group">
+              <label for="duration-slider">
+                ⏱️ Thời gian đua:
+              </label>
+              <div class="slider-container">
+                <input type="range" id="duration-slider" min="10" max="120" value="30" class="cute-slider">
+                <span id="duration-val" class="slider-val">30s</span>
+              </div>
+            </div>
+            
+            <!-- Setup Group: Empty space / Filler for layout -->
+            <div class="setup-group">
+              <label>📅 Sự kiện:</label>
+              <div class="slider-val" style="font-size: 1.1rem; color: var(--pastel-pink-dark); font-weight: 700;">FAMILY DAY 🎉</div>
+            </div>
+
+            <!-- Audio Setting -->
+            <div class="setup-group">
+              <label>🔊 Âm thanh:</label>
+              <button type="button" id="mute-sound-btn" class="sound-toggle-btn">
+                <span id="sound-icon">🔊</span> <span id="sound-label">Bật âm thanh</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Animal selection card -->
+        <section class="glass-panel selection-card">
+          <div class="selection-header">
+            <h3>Chọn con vật cổ vũ (1 - 40)</h3>
+            <span class="text-muted" id="grid-instruction">Nhấp để xem thông tin chi tiết và đặt cược niềm tin</span>
+          </div>
+          
+          <div class="selection-grid-container">
+            <div class="selection-grid" id="animals-selection-grid">
+              <!-- 40 animal cards will be dynamically injected here -->
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right Panel: Side preview cards -->
+      <aside class="glass-panel detail-card" id="champion-detail-card">
+        <div class="detail-preview">
+          <div class="detail-sunburst"></div>
+          <div id="detail-svg-container">
+            <!-- Big animated SVG preview -->
+          </div>
+        </div>
+        
+        <div class="detail-info">
+          <h3 id="detail-name">Thỏ Bông</h3>
+          <span class="food-badge" id="detail-food">🥕 Cà rốt ngọt</span>
+        </div>
+        
+        <p class="detail-bio" id="detail-bio">
+          Thích chạy nhảy tung tăng khắp đồng cỏ xanh tươi mát mẻ.
+        </p>
+        
+        <div class="detail-stats">
+          <div class="stat-row">
+            <div class="stat-label">
+              <span>Tốc độ tối đa</span>
+              <span id="stat-val-speed">⭐⭐⭐⭐</span>
+            </div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-label">
+              <span>Khả năng tăng tốc</span>
+              <span id="stat-val-accel">⭐⭐⭐⭐</span>
+            </div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-label">
+              <span>Độ may mắn</span>
+              <span id="stat-val-luck">⭐⭐⭐⭐⭐</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Start Action -->
+    <div class="start-btn-container">
+      <button type="button" id="start-race-btn" class="cta-btn">BẮT ĐẦU ĐUA! 🚩</button>
+    </div>
+  </main>
+
+  <!-- SCREEN 2: RACETRACK ARENA -->
+  <main id="screen-race" class="screen screen-race">
+    <div class="race-top-panel">
+      <!-- Minimap tracking -->
+      <div class="glass-panel minimap-card" id="race-minimap-card">
+        <div class="minimap-track-line" id="minimap-track-line">
+          <span class="minimap-flag">🏁</span>
+          <!-- Dynamic mini animal dots injected here -->
+        </div>
+      </div>
+      
+      <!-- Real-time top 3 leaderboard overlay -->
+      <div class="glass-panel leaderboard-card">
+        <div class="leaderboard-title">Dẫn đầu hiện tại:</div>
+        <div id="live-leaderboard-rows">
+          <div class="leader-row">
+            <span class="leader-rank">1</span>
+            <div class="leader-avatar" id="leader-1-avatar"></div>
+            <span id="leader-1-name">#--</span>
+          </div>
+          <div class="leader-row">
+            <span class="leader-rank">2</span>
+            <div class="leader-avatar" id="leader-2-avatar"></div>
+            <span id="leader-2-name">#--</span>
+          </div>
+          <div class="leader-row">
+            <span class="leader-rank">3</span>
+            <div class="leader-avatar" id="leader-3-avatar"></div>
+            <span id="leader-3-name">#--</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scrollable track -->
+    <div class="racetrack-outer">
+      <div class="racetrack-viewport" id="racetrack-viewport">
+        <!-- Racetrack scrollable arena -->
+        <div class="racetrack-scroll track-theme-meadow" id="racetrack-scroll">
+          
+          <!-- Checkered lines -->
+          <div class="start-line"></div>
+          <div class="start-banner">XUẤT PHÁT</div>
+          
+          <div class="finish-line"></div>
+          <div class="finish-banner">ĐÍCH</div>
+          
+          <!-- Decorative items like trees, clouds, candy, shells -->
+          <div class="decorations-layer" id="decorations-layer"></div>
+          
+          <!-- Runners layer -->
+          <div class="runners-container" id="runners-container">
+            <!-- 40 runner divs positioned absolute -->
+          </div>
+        </div>
+        
+        <!-- Countdown overlay -->
+        <div class="countdown-overlay" id="countdown-overlay">
+          <div class="countdown-number" id="countdown-number">3</div>
+        </div>
+
+        <!-- Camera flash photo finish -->
+        <div class="photofinish-flash" id="photofinish-flash"></div>
+      </div>
+    </div>
+
+    <!-- Controls at bottom of race screen -->
+    <div class="race-controls-row">
+      <div class="camera-controls">
+        <button type="button" class="control-btn active" id="btn-cam-auto" data-cam="auto">🎥 Tự Động</button>
+        <button type="button" class="control-btn" id="btn-cam-focus" data-cam="focus">🎯 Cận Cảnh</button>
+        <button type="button" class="control-btn" id="btn-cam-group" data-cam="group">👥 Toàn Cảnh</button>
+      </div>
+      <div id="race-timer-display" class="slider-val">Thời gian: 00.00s</div>
+    </div>
+  </main>
+
+  <!-- SCREEN 3: VICTORY & HONORING -->
+  <main id="screen-victory" class="screen screen-victory">
+    <!-- Confetti layer -->
+    <div class="confetti-container" id="confetti-container"></div>
+    
+    <!-- Giant sunburst card honoring the champion & podium side-by-side -->
+    <section class="glass-panel winner-showcase">
+      <div class="crown-badge">👑</div>
+      
+      <!-- Hidden winning avatar placeholder to keep JS engine working without errors -->
+      <div id="winner-avatar-container" style="display: none;"></div>
+      
+      <div class="winner-title" id="winner-banner-text">SỐ 1 THẮNG CUỘC!</div>
+      <span id="cheered-outcome-badge" class="cheered-outcome-badge outcome-won">Nhà vô địch của bạn đã thắng!</span>
+      <p class="detail-bio" id="winner-bio-text">"Cảm ơn mọi người đã cổ vũ cho mình!"</p>
+      
+      <!-- Centered Podium inside the showcase card -->
+      <div class="podium-container" id="podium-container">
+        <!-- 2nd place -->
+        <div class="podium-place place-2">
+          <div class="podium-avatar" id="podium-2-avatar"></div>
+          <div class="podium-block">2</div>
+          <span class="podium-number" id="podium-2-name">#2</span>
+        </div>
+        <!-- 1st place -->
+        <div class="podium-place place-1">
+          <div class="podium-avatar" id="podium-1-avatar"></div>
+          <div class="podium-block">1</div>
+          <span class="podium-number" id="podium-1-name">#1</span>
+        </div>
+        <!-- 3rd place -->
+        <div class="podium-place place-3">
+          <div class="podium-avatar" id="podium-3-avatar"></div>
+          <div class="podium-block">3</div>
+          <span class="podium-number" id="podium-3-name">#3</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Full Standings Table -->
+    <section class="glass-panel results-card">
+      <h3 style="margin-bottom: 16px; font-size: 1.2rem;">Bảng Xếp Hạng Chung Cuộc (1 - 40)</h3>
+      <div class="results-table-container">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Hạng</th>
+              <th>Đấu thủ</th>
+              <th>Số</th>
+              <th>Trạng thái</th>
+            </tr>
+          </thead>
+          <tbody id="results-table-body">
+            <!-- 40 rows dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Play Again Button -->
+    <div class="start-btn-container" style="margin-bottom: 48px;">
+      <button type="button" id="replay-game-btn" class="cta-btn">QUAY LẠI SẢNH ĐỢI 🔄</button>
+    </div>
+  </main>
+
+  <!-- Load JS files in sequential dependency order -->
+  <script src="animals.js"></script>
+  <script src="sound.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
