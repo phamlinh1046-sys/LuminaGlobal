@@ -533,24 +533,43 @@ header.app-header {
 
 .minimap-runner {
   position: absolute;
-  top: -12px;
-  width: 24px;
-  height: 24px;
+  top: -3px; /* Centered on the 6px track line */
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  border: 1.5px solid #fff;
+  border: 1px solid #fff;
   box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
   justify-content: center;
   transform: translateX(-50%);
   transition: left 0.1s linear;
+  font-size: 0; /* Hide text for regular dots */
+  z-index: 1;
 }
 
 .minimap-runner.selected-runner {
+  top: -11px;
+  width: 24px;
+  height: 24px;
   border: 2.5px solid #6200ea;
   z-index: 10;
-  transform: translateX(-50%) scale(1.25);
+  transform: translateX(-50%) scale(1.1);
   box-shadow: 0 0 6px rgba(98, 0, 234, 0.5);
+  font-size: 8px;
+  font-weight: bold;
+}
+
+.minimap-runner.top-runner {
+  top: -9px;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid #fff;
+  z-index: 5;
+  transform: translateX(-50%);
+  box-shadow: var(--shadow-sm);
+  font-size: 7px;
+  font-weight: bold;
 }
 
 .minimap-runner svg {

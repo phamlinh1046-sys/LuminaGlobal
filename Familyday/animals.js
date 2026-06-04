@@ -96,20 +96,31 @@ const ANIMAL_BIOS = [
   "Quái vật hồng dễ thương đến từ hành tinh khác."
 ];
 
-// Combine profiles
-const ANIMALS = ANIMAL_SPECIES.map((a, index) => {
-  // Generate repeatable pseudo-random stats based on ID
-  const speed = (a.id % 3) + 3; // 3 to 5
-  const accel = ((a.id + 2) % 3) + 3; // 3 to 5
-  const luck = ((a.id * 7) % 3) + 3; // 3 to 5
+// Combine profiles (dynamically generate 200 animal participants)
+const ANIMALS = [];
+for (let i = 1; i <= 200; i++) {
+  const template = ANIMAL_SPECIES[(i - 1) % ANIMAL_SPECIES.length];
   
-  return {
-    ...a,
-    bio: ANIMAL_BIOS[index] || "Một đấu thủ đáng gờm trên đường đua.",
-    favFood: FAVORITE_FOODS[index] || "Đồ ăn ngon",
+  // Generate repeatable pseudo-random stats based on ID
+  const speed = (i % 3) + 3; // 3 to 5
+  const accel = ((i + 2) % 3) + 3; // 3 to 5
+  const luck = ((i * 7) % 3) + 3; // 3 to 5
+  
+  const bioIndex = (i - 1) % ANIMAL_BIOS.length;
+  const foodIndex = (i - 1) % FAVORITE_FOODS.length;
+  
+  ANIMALS.push({
+    id: i,
+    name: `${template.name} #${i}`,
+    type: template.type,
+    color: template.color,
+    accent: template.accent,
+    text: template.text,
+    bio: ANIMAL_BIOS[bioIndex] || "Một đấu thủ đáng gờm trên đường đua.",
+    favFood: FAVORITE_FOODS[foodIndex] || "Đồ ăn ngon",
     stats: { speed, accel, luck }
-  };
-});
+  });
+}
 
 function getAnimal(id) {
   return ANIMALS.find(a => a.id === parseInt(id)) || ANIMALS[0];
@@ -865,8 +876,8 @@ function renderAnimalSVG(id, state = 'idle', frame = 0) {
         <g transform="translate(40, 48)">
           <!-- Circular Badge background -->
           <circle cx="0" cy="0" r="7.5" fill="#FFFFFF" stroke="${animal.text}" stroke-width="1.5"/>
-          <!-- Bib Number text -->
-          <text x="0" y="2.5" font-family="'Outfit', 'Fredoka', 'Segoe UI', sans-serif" font-size="8" font-weight="900" text-anchor="middle" fill="${animal.text}">
+          <!-- Bib Number text (font-size scales dynamically for multi-digit numbers to avoid overflow) -->
+          <text x="0" y="${animal.id >= 100 ? '2.0' : '2.5'}" font-family="'Outfit', 'Fredoka', 'Segoe UI', sans-serif" font-size="${animal.id >= 100 ? '5.5' : animal.id >= 10 ? '7' : '8'}" font-weight="900" text-anchor="middle" fill="${animal.text}">
             ${animal.id}
           </text>
         </g>

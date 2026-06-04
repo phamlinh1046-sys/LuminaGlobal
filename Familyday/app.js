@@ -272,9 +272,9 @@ class Game {
     this.cameraScrollX = 0;
     this.dom.racetrackViewport.scrollLeft = 0;
     
-    // 4. Create 40 runners
+    // 4. Create runners
     const trackHeight = this.dom.racetrackScroll.clientHeight || 500;
-    const runnerHeight = 110;
+    const runnerHeight = ANIMALS.length > 50 ? 70 : 110;
     const paddingY = 15;
     const availableRange = Math.max(100, trackHeight - runnerHeight - (paddingY * 2));
 
@@ -290,6 +290,8 @@ class Game {
       runnerDiv.id = `runner-${animal.id}`;
       runnerDiv.style.left = `${this.startX}px`;
       runnerDiv.style.top = `${yPos}px`;
+      runnerDiv.style.width = `${runnerHeight}px`;
+      runnerDiv.style.height = `${runnerHeight}px`;
       runnerDiv.style.zIndex = Math.floor(yPos); // Y-sorting depth
       
       runnerDiv.innerHTML = `
@@ -302,15 +304,13 @@ class Game {
       
       this.dom.runnersContainer.appendChild(runnerDiv);
       
-      // Create minimap dot
+      // Create minimap dot (we remove direct inline font settings, handled by CSS)
       const miniDot = document.createElement('div');
       miniDot.className = `minimap-runner ${isSelected ? 'selected-runner' : ''}`;
       miniDot.id = `mini-dot-${animal.id}`;
       miniDot.style.left = '0%';
       miniDot.style.backgroundColor = animal.color;
       miniDot.style.color = animal.text;
-      miniDot.style.fontSize = '8px';
-      miniDot.style.fontWeight = 'bold';
       miniDot.innerHTML = animal.id;
       
       this.dom.minimapTrack.appendChild(miniDot);
@@ -334,7 +334,8 @@ class Game {
         domElement: runnerDiv,
         miniElement: miniDot,
         svgBox: document.getElementById(`svg-box-${animal.id}`),
-        bubbleElement: document.getElementById(`bubble-${animal.id}`)
+        bubbleElement: document.getElementById(`bubble-${animal.id}`),
+        lastRenderedState: 'idle'
       });
     });
 
@@ -530,8 +531,13 @@ class Game {
       // 6. Apply position to DOM
       runner.domElement.style.left = `${runner.x}px`;
       
-      // 7. Update animated SVG vector content
-      runner.svgBox.innerHTML = renderAnimalSVG(runner.id, runner.state, this.frameNumber);
+      // 7. Update animated SVG vector content (optimized: viewport culling + state change guard)
+      const viewportWidth = this.dom.racetrackViewport.clientWidth || 1000;
+      const isVisible = runner.x >= this.cameraScrollX - 200 && runner.x <= this.cameraScrollX + viewportWidth + 200;
+      if (isVisible || runner.state !== runner.lastRenderedState) {
+        runner.svgBox.innerHTML = renderAnimalSVG(runner.id, runner.state, this.frameNumber);
+        runner.lastRenderedState = runner.state;
+      }
       
       totalSpeed += runner.velocity;
     });
@@ -622,6 +628,7 @@ class Game {
     });
     
     // 3. Update top 3 leaderboard overlay
+    const top3Ids = sorted.slice(0, 3).map(r => r.id);
     for (let i = 0; i < 3; i++) {
       const runner = sorted[i];
       const nameElem = document.getElementById(`leader-${i+1}-name`);
@@ -633,11 +640,25 @@ class Game {
       }
     }
     
-    // 4. Update dots on minimap line
+    // 4. Update dots on minimap line and adjust highlight classes (avoids 200 dots overlapping clump)
     this.runners.forEach(runner => {
       // Percent position: start is 300px, end is 5300px. Length 5000px.
       const pct = Math.max(0, Math.min(100, ((runner.x - this.startX) / this.trackLength) * 100));
       runner.miniElement.style.left = `${pct}%`;
+      
+      const isSelected = runner.id === this.cheeredId;
+      const isTop3 = top3Ids.includes(runner.id);
+      
+      let className = 'minimap-runner';
+      if (isSelected) {
+        className += ' selected-runner';
+      } else if (isTop3) {
+        className += ' top-runner';
+      }
+      
+      if (runner.miniElement.className !== className) {
+        runner.miniElement.className = className;
+      }
     });
   }
 
