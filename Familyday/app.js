@@ -640,7 +640,7 @@ class Game {
       }
     }
     
-    // 4. Update dots on minimap line and adjust highlight classes (avoids 200 dots overlapping clump)
+    // 4. Update dots on minimap line and adjust highlight classes (avoids 100 dots overlapping clump)
     this.runners.forEach(runner => {
       // Percent position: start is 300px, end is 5300px. Length 5000px.
       const pct = Math.max(0, Math.min(100, ((runner.x - this.startX) / this.trackLength) * 100));

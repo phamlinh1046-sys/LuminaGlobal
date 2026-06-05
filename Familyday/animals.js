@@ -96,9 +96,9 @@ const ANIMAL_BIOS = [
   "Quái vật hồng dễ thương đến từ hành tinh khác."
 ];
 
-// Combine profiles (dynamically generate 200 animal participants)
+// Combine profiles (dynamically generate 100 animal participants)
 const ANIMALS = [];
-for (let i = 1; i <= 200; i++) {
+for (let i = 1; i <= 100; i++) {
   const template = ANIMAL_SPECIES[(i - 1) % ANIMAL_SPECIES.length];
   
   // Generate repeatable pseudo-random stats based on ID
